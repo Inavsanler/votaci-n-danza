@@ -100,9 +100,22 @@
 
         // Función para votar por un candidato
         function vote(id) {
-            const nomineeRef = ref(database, `nominees/${id}`);
-            update(nomineeRef, {
-                votes: (snapshot) => (snapshot.val()?.votes || 0) + 1
+    const nomineeRef = ref(database, `nominees/${id}`);
+    onValue(nomineeRef, (snapshot) => {
+        const nominee = snapshot.val();
+        if (nominee) {
+            const updatedVotes = (nominee.votes || 0) + 1;
+            update(nomineeRef, { votes: updatedVotes })
+                .then(() => {
+                    console.log(`Votos actualizados: ${updatedVotes}`);
+                    loadNominees(); // Recargar la lista de nominados
+                })
+                .catch((error) => console.error("Error al actualizar votos:", error));
+        } else {
+            console.error("Nominado no encontrado.");
+        }
+    });
+}
             });
         }
         function guardarVoto(opcion) {
