@@ -67,14 +67,15 @@
 
         // Función para cargar nominados
         function loadNominees() {
+            console.log("Intentando cargar los nominados...");
             const nomineesRef = database.ref('nominees/');
             nomineesRef.on('value', (snapshot) => {
                 const data = snapshot.val();
+                console.log("Datos recibidos de Firebase:", data); // Depuración
                 const nomineeList = document.getElementById('nominee-list');
                 nomineeList.innerHTML = ''; // Limpiar el contenedor
 
                 if (data) {
-                    console.log("Datos recibidos de Firebase:", data); // Depuración
                     Object.keys(data).forEach((id) => {
                         const nominee = data[id];
                         nomineeList.innerHTML += `
@@ -92,10 +93,11 @@
                         `;
                     });
                 } else {
+                    console.warn("No se encontraron datos en Firebase.");
                     nomineeList.innerHTML = '<p>No se encontraron nominados.</p>';
                 }
             }, (error) => {
-                console.error("Error al cargar los datos:", error);
+                console.error("Error al cargar los datos desde Firebase:", error);
             });
         }
 
