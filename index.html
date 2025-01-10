@@ -90,7 +90,7 @@
                                     <p><strong>Biografía (ES):</strong> ${nominee.bio.es}</p>
                                     <p><strong>Biografía (EN):</strong> ${nominee.bio.en}</p>
                                     <p><strong>Votos:</strong> ${nominee.votes || 0}</p>
-                                    <button class="btn btn-success" onclick="vote('${id}')">Votar</button>
+                                    <button class="btn btn-success" onclick="confirmVote('${id}', '${nominee.name}')">Votar</button>
                                 </div>
                             </div>
                         `;
@@ -100,6 +100,14 @@
                     nomineeList.innerHTML = '<p>No se encontraron nominados.</p>';
                 }
             });
+        }
+
+        // Función para confirmar y registrar un voto
+        function confirmVote(id, name) {
+            const confirmAction = confirm(`¿Estás seguro de que deseas votar por ${name}?`);
+            if (confirmAction) {
+                vote(id);
+            }
         }
 
         // Función para votar por un candidato
