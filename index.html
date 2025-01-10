@@ -341,68 +341,96 @@
             votes: 0
         },
         ];
+        // Función para cargar los nominados desde el servidor
+        async function loadNominees() {
+            try {
+                const response = await fetch("http://localhost:3000/nominees"); // Reemplaza con la URL de tu servidor
+                const nominees = await response.json();
 
-        // Función para renderizar los nominados
-        function loadNominees() {
-            const nomineeList = document.getElementById('nominee-list');
-            nomineeList.innerHTML = ''; // Limpiar el contenedor
-            predefinedNominees.forEach(nominee => {
-                const nomineeCard = document.createElement('div');
-                nomineeCard.className = "col-md-4";
-                nomineeCard.innerHTML = `
-                    <div class="card shadow-sm">
-                        <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${nominee.name}</h5>
-                            <p><strong>País:</strong> ${nominee.country}</p>
-                            <p><strong>Biografía (ES):</strong> ${nominee.bio.es}</p>
-                            <p><strong>Biografía (EN):</strong> ${nominee.bio.en}</p>
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-link" onclick="window.open('${nominee.curriculum}', '_blank')">Currículum</button>
-                                <button class="btn btn-success" onclick="vote(${nominee.id})">Votar (${nominee.votes})</button>
+                const nomineeList = document.getElementById('nominee-list');
+                nomineeList.innerHTML = ''; // Limpiar el contenedor
+
+                nominees.forEach(nominee => {
+                    const nomineeCard = document.createElement('div');
+                    nomineeCard.className = "col-md-4";
+                    nomineeCard.innerHTML = `
+                        <div class="card shadow-sm">
+                            <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${nominee.name}</h5>
+                                <p><strong>País:</strong> ${nominee.country}</p>
+                                <p><strong>Biografía (ES):</strong> ${nominee.bio.es}</p>
+                                <p><strong>Biografía (EN):</strong> ${nominee.bio.en}</p>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-link" onclick="window.open('${nominee.curriculum}', '_blank')">Currículum</button>
+                                    <button class="btn btn-success" onclick="vote(${nominee.id})">Votar (${nominee.votes})</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                nomineeList.appendChild(nomineeCard);
-            });
+                    `;
+                    nomineeList.appendChild(nomineeCard);
+                });
+            } catch (error) {
+                console.error("Error al cargar los nominados:", error);
+            }
         }
 
-        // Función para votar por un nominado
-        function vote(id) {
-            const nominee = predefinedNominees.find(n => n.id === id);
-            if (nominee) {
-                nominee.votes++;
-                loadNominees();
+        // Función para votar por un candidato
+        async function vote(id) {
+            try {
+                const response = await fetch("http://localhost:3000/vote", { // Reemplaza con la URL de tu servidor
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ id })
+                });
+
+                if (response.ok) {
+                    loadNominees(); // Recargar los nominados después de votar
+                } else {
+                    console.error("Error al registrar el voto:", await response.text());
+                }
+            } catch (error) {
+                console.error("Error al votar:", error);
             }
         }
 
         // Función para añadir un nuevo candidato
-        function addNominee(event) {
+        async function addNominee(event) {
             event.preventDefault(); // Evitar el comportamiento por defecto del formulario
 
             const name = document.getElementById('name').value;
+            const country = document.getElementById('country').value;
             const bioEs = document.getElementById('bioEs').value;
             const bioEn = document.getElementById('bioEn').value;
             const photo = document.getElementById('photo').value;
+            const curriculum = document.getElementById('curriculum').value;
 
-            // Crear un nuevo candidato
-            const newNominee = {
-                id: predefinedNominees.length + 1,
-                name,
-                bio: { es: bioEs, en: bioEn },
-                photo,
-                votes: 0
-            };
+            try {
+                const response = await fetch("http://localhost:3000/nominees", { // Reemplaza con la URL de tu servidor
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        name,
+                        country,
+                        bio: { es: bioEs, en: bioEn },
+                        photo,
+                        curriculum
+                    })
+                });
 
-            // Añadir el nuevo candidato a la lista
-            predefinedNominees.push(newNominee);
-
-            // Recargar la lista de candidatos
-            loadNominees();
-
-            // Resetear el formulario
-            document.getElementById('add-nominee-form').reset();
+                if (response.ok) {
+                    loadNominees(); // Recargar la lista de nominados después de añadir uno nuevo
+                    document.getElementById('add-nominee-form').reset(); // Resetear el formulario
+                } else {
+                    console.error("Error al añadir un nuevo candidato:", await response.text());
+                }
+            } catch (error) {
+                console.error("Error al añadir un candidato:", error);
+            }
         }
 
         // Event Listener para el formulario
@@ -410,6 +438,3 @@
 
         // Cargar los nominados al cargar la página
         window.onload = loadNominees;
-    </script>
-</body>
-</html>
