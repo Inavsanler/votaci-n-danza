@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Nominados</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Nominados al Mensaje del Día Internacional de la Danza</h1>
+        
+        <!-- Contenedor de Nominados -->
+        <div id="nominee-list" class="row g-4"></div>
+
+        <!-- Formulario para añadir un nuevo candidato -->
+        <div class="mt-5">
+            <h3 class="text-primary">Agregar una Nueva Candidatura</h3>
+            <form id="add-nominee-form" class="bg-white shadow p-4 rounded">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre del Candidato</label>
+                    <input type="text" id="name" class="form-control" placeholder="Introduce el nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="country" class="form-label">País</label>
+                    <input type="text" id="country" class="form-control" placeholder="Introduce el país" required>
+                </div>
+                <div class="mb-3">
+                    <label for="bioEs" class="form-label">Biografía en Español</label>
+                    <textarea id="bioEs" class="form-control" rows="3" placeholder="Introduce la biografía en español" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="bioEn" class="form-label">Biografía en Inglés</label>
+                    <textarea id="bioEn" class="form-control" rows="3" placeholder="Introduce la biografía en inglés" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="photo" class="form-label">URL de la Foto</label>
+                    <input type="url" id="photo" class="form-control" placeholder="Introduce la URL de la foto" required>
+                </div>
+                <div class="mb-3">
+                    <label for="curriculum" class="form-label">Enlace al Currículum</label>
+                    <input type="url" id="curriculum" class="form-control" placeholder="Introduce el enlace al currículum" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Agregar Candidato</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3TxXM7pXatK_A9IA9sLeySt1sP84_Haw",
+            authDomain: "votosmensajediadanza.firebaseapp.com",
+            databaseURL: "https://votosmensajediadanza-default-rtdb.firebaseio.com/",
+            projectId: "votosmensajediadanza",
+            storageBucket: "votosmensajediadanza.firebasestorage.app",
+            messagingSenderId: "482989069896",
+            appId: "1:482989069896:web:2aec18e2a89c4b6b616a7d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Función para cargar nominados
+        function loadNominees() {
+            const nomineesRef = ref(database, 'nominees/');
+            onValue(nomineesRef, (snapshot) => {
+                const data = snapshot.val();
+                const nomineeList = document.getElementById('nominee-list');
+                nomineeList.innerHTML = ''; // Limpiar el contenedor
+                for (let id in data) {
+                    const nominee = data[id];
+                    const nomineeCard = document.createElement('div');
+                    nomineeCard.className = "col-md-4";
+                    nomineeCard.innerHTML = `
+                        <div class="card shadow-sm">
+                            <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${nominee.name}</h5>
+                                <p><strong>País:</strong> ${nominee.country}</p>
+                                <p><strong>Biografía (ES):</strong> ${nominee.bio.es}</p>
+                                <p><strong>Biografía (EN):</strong> ${nominee.bio.en}</p>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-link" onclick="window.open('${nominee.curriculum}', '_blank')">Currículum</button>
+                                    <button class="btn btn-success" onclick="vote('${id}')">Votar (${nominee.votes})</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    nomineeList.appendChild(nomineeCard);
+                }
+            });
+        }
+
+        // Función para votar por un candidato
+        function vote(id) {
+            const nomineeRef = ref(database, `nominees/${id}`);
+            update(nomineeRef, {
+                votes: (snapshot) => (snapshot.val()?.votes || 0) + 1
+            });
+        }
+
+        // Función para añadir un nuevo candidato
+        function addNominee(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const country = document.getElementById('country').value;
+            const bioEs = document.getElementById('bioEs').value;
+            const bioEn = document.getElementById('bioEn').value;
+            const photo = document.getElementById('photo').value;
+            const curriculum = document.getElementById('curriculum').value;
+
+            const nomineesRef = ref(database, 'nominees/');
+            const newNomineeRef = push(nomineesRef);
+            set(newNomineeRef, {
+                name,
+                country,
+                bio: { es: bioEs, en: bioEn },
+                photo,
+                curriculum,
+                votes: 0
+            });
+
+            document.getElementById('add-nominee-form').reset(); // Resetear el formulario
+        }
+
+        // Event Listener para el formulario
+        document.getElementById('add-nominee-form').addEventListener('submit', addNominee);
+
+        // Cargar los nominados al cargar la página
+        window.onload = loadNominees;
+    </script>
+</body>
+</html>
 
