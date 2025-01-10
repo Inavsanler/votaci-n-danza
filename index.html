@@ -1,3 +1,33 @@
+const API_BASE_URL = "http://localhost:4000"; // Cambiar por la URL de producción si es necesario
+
+async function loadNominees() {
+    const response = await fetch(`${API_BASE_URL}/nominees`);
+    // El resto del código...
+}
+
+async function vote(id) {
+    const response = await fetch(`${API_BASE_URL}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+    // El resto del código...
+}
+
+async function addNominee(event) {
+    event.preventDefault();
+    const response = await fetch(`${API_BASE_URL}/nominees`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name,
+            country,
+            bio: { es: bioEs, en: bioEn },
+            photo,
+            curriculum
+        })
+    });
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
