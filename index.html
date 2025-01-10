@@ -62,7 +62,7 @@
         };
 
         // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
         // Función para cargar nominados
@@ -84,7 +84,7 @@
                                         <h5 class="card-title">${nominee.name}</h5>
                                         <p><strong>País:</strong> ${nominee.country}</p>
                                         <p><strong>Votos:</strong> ${nominee.votes || 0}</p>
-                                        <button class="btn btn-success" onclick="vote('${id}')">Votar (${nominee.votes || 0})</button>
+                                        <button class="btn btn-success" onclick="confirmVote('${id}', '${nominee.name}')">Votar (${nominee.votes || 0})</button>
                                     </div>
                                 </div>
                             </div>
@@ -96,14 +96,27 @@
             });
         }
 
-        // Función para votar por un candidato
-        function vote(id) {
+        // Función para confirmar y guardar el voto
+        function confirmVote(id, name) {
+            if (confirm(`¿Estás seguro de que quieres votar por ${name}?`)) {
+                saveVote(id);
+            }
+        }
+
+        // Función para guardar el voto en Firebase
+        function saveVote(id) {
             const nomineeRef = database.ref(`nominees/${id}`);
             nomineeRef.transaction((nominee) => {
                 if (nominee) {
                     nominee.votes = (nominee.votes || 0) + 1;
                 }
                 return nominee;
+            }, (error) => {
+                if (error) {
+                    console.error("Error al guardar el voto:", error);
+                } else {
+                    console.log("Voto guardado correctamente.");
+                }
             });
         }
 
