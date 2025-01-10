@@ -124,6 +124,38 @@
        return (currentValue || 0) + 1; // Incrementar el voto
    });
 }
+function loadNominees() {
+    const nomineesRef = ref(database, 'nominees/');
+    onValue(nomineesRef, (snapshot) => {
+        const data = snapshot.val();
+        const nomineeList = document.getElementById('nominee-list');
+        nomineeList.innerHTML = ''; // Limpiar el contenedor
+
+        if (data) {
+            for (let id in data) {
+                const nominee = data[id];
+                const nomineeCard = document.createElement('div');
+                nomineeCard.className = "col-md-4";
+                nomineeCard.innerHTML = `
+                    <div class="card shadow-sm">
+                        <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${nominee.name}</h5>
+                            <p><strong>País:</strong> ${nominee.country}</p>
+                            <p><strong>Votos:</strong> ${nominee.votes || 0}</p>
+                            <button class="btn btn-success" onclick="vote('${id}')">Votar (${nominee.votes || 0})</button>
+                        </div>
+                    </div>
+                `;
+                nomineeList.appendChild(nomineeCard);
+            }
+        } else {
+            nomineeList.innerHTML = '<p>No se encontraron nominados.</p>';
+        }
+    });
+}
+
+}
 document.getElementById('btn-votar').addEventListener('click', () => {
    const opcion = document.querySelector('input[name="opcion"]:checked').value;
    guardarVoto(opcion);
