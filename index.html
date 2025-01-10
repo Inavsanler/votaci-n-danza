@@ -47,10 +47,9 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
-
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
+    <script>
         // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD3TxXM7pXatK_A9IA9sLeySt1sP84_Haw",
@@ -63,24 +62,24 @@
         };
 
         // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
         // Función para cargar nominados
         function loadNominees() {
-            const nomineesRef = ref(database, 'nominees/');
-            onValue(nomineesRef, (snapshot) => {
+            const nomineesRef = database.ref('nominees/');
+            nomineesRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 const nomineeList = document.getElementById('nominee-list');
                 nomineeList.innerHTML = ''; // Limpiar el contenedor
 
                 if (data) {
-                    for (let id in data) {
+                    Object.keys(data).forEach((id) => {
                         const nominee = data[id];
                         nomineeList.innerHTML += `
                             <div class="col-md-4">
                                 <div class="card shadow-sm">
-                                    <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
+                                    <img src="${nominee.photo}" class="card-img-top" alt="${nominee.name}">
                                     <div class="card-body">
                                         <h5 class="card-title">${nominee.name}</h5>
                                         <p><strong>País:</strong> ${nominee.country}</p>
@@ -90,7 +89,7 @@
                                 </div>
                             </div>
                         `;
-                    }
+                    });
                 } else {
                     nomineeList.innerHTML = '<p>No se encontraron nominados.</p>';
                 }
@@ -99,21 +98,13 @@
 
         // Función para votar por un candidato
         function vote(id) {
-            const nomineeRef = ref(database, `nominees/${id}`);
-            onValue(nomineeRef, (snapshot) => {
-                const nominee = snapshot.val();
+            const nomineeRef = database.ref(`nominees/${id}`);
+            nomineeRef.transaction((nominee) => {
                 if (nominee) {
-                    const updatedVotes = (nominee.votes || 0) + 1;
-                    update(nomineeRef, { votes: updatedVotes })
-                        .then(() => {
-                            console.log(`Votos actualizados: ${updatedVotes}`);
-                            loadNominees(); // Recargar la lista de nominados
-                        })
-                        .catch((error) => console.error("Error al actualizar votos:", error));
-                } else {
-                    console.error("Nominado no encontrado.");
+                    nominee.votes = (nominee.votes || 0) + 1;
                 }
-            }, { onlyOnce: true });
+                return nominee;
+            });
         }
 
         // Función para añadir un nuevo candidato
@@ -126,9 +117,8 @@
             const photo = document.getElementById('photo').value;
             const curriculum = document.getElementById('curriculum').value;
 
-            const nomineesRef = ref(database, 'nominees/');
-            const newNomineeRef = push(nomineesRef);
-            set(newNomineeRef, {
+            const nomineesRef = database.ref('nominees/');
+            nomineesRef.push({
                 name,
                 country,
                 bio: { es: bioEs, en: bioEn },
@@ -141,10 +131,10 @@
         }
 
         // Event Listener para el formulario
-        document.getElementById('add-nominee-form').addEventListener('submit', addNominee);
-
-        // Cargar los nominados al cargar la página
-        window.onload = loadNominees;
+        window.onload = () => {
+            loadNominees();
+            document.getElementById('add-nominee-form').addEventListener('submit', addNominee);
+        };
     </script>
 </body>
 </html>
