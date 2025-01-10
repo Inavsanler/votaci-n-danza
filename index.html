@@ -47,6 +47,8 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
@@ -102,6 +104,20 @@
             update(nomineeRef, {
                 votes: (snapshot) => (snapshot.val()?.votes || 0) + 1
             });
+        }
+        function guardarVoto(opcion) {
+   const referencia = database.ref('votos/' + opcion);
+   referencia.transaction((currentValue) => {
+       return (currentValue || 0) + 1; // Incrementar el voto
+   });
+}
+
+// Ejemplo: Llamar a la función al hacer clic
+document.getElementById('btn-votar').addEventListener('click', () => {
+   const opcion = document.querySelector('input[name="opcion"]:checked').value;
+   guardarVoto(opcion);
+   alert("¡Gracias por tu voto!");
+});
         }
 
         // Función para añadir un nuevo candidato
