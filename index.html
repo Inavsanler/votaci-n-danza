@@ -111,7 +111,13 @@
        return (currentValue || 0) + 1; // Incrementar el voto
    });
 }
-
+document.getElementById('btn-votar').addEventListener('click', () => {
+   const opcion = document.querySelector('input[name="opcion"]:checked').value;
+   guardarVoto(opcion);
+   alert("¡Gracias por tu voto!");
+});
+ }
+        
 // Ejemplo: Llamar a la función al hacer clic
 document.getElementById('btn-votar').addEventListener('click', () => {
    const opcion = document.querySelector('input[name="opcion"]:checked').value;
