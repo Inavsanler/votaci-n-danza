@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Nominados</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
+
 <body class="bg-light">
     <div class="container py-5">
         <h1 class="text-center mb-4">Nominados al Mensaje del Día Internacional de la Danza</h1>
-        
+
         <!-- Contenedor de Nominados -->
-        <div id="nominee-list" class="row g-4"></div>
+        <div id="nominee-list" class="row g-4">
+            <!-- Los nominados se cargarán aquí dinámicamente -->
+        </div>
 
         <!-- Formulario para añadir un nuevo candidato -->
         <div class="mt-5">
@@ -65,13 +69,11 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Función para cargar nominados
+        // Función para renderizar los nominados
         function loadNominees() {
-            console.log("Intentando cargar los nominados...");
             const nomineesRef = database.ref('nominees/');
             nomineesRef.on('value', (snapshot) => {
                 const data = snapshot.val();
-                console.log("Datos recibidos de Firebase:", data); // Depuración
                 const nomineeList = document.getElementById('nominee-list');
                 nomineeList.innerHTML = ''; // Limpiar el contenedor
 
@@ -93,11 +95,8 @@
                         `;
                     });
                 } else {
-                    console.warn("No se encontraron datos en Firebase.");
                     nomineeList.innerHTML = '<p>No se encontraron nominados.</p>';
                 }
-            }, (error) => {
-                console.error("Error al cargar los datos desde Firebase:", error);
             });
         }
 
@@ -155,4 +154,5 @@
         };
     </script>
 </body>
+
 </html>
