@@ -14,40 +14,35 @@
         <div id="nominee-list" class="row g-4">
             <!-- Los nominados se cargarán aquí dinámicamente -->
         </div>
-
-        <!-- Formulario para añadir un nuevo candidato -->
-        <div class="mt-5">
-            <h3 class="text-primary">Agregar una Nueva Candidatura</h3>
-            <form id="add-nominee-form" class="bg-white shadow p-4 rounded">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nombre del Candidato</label>
-                    <input type="text" id="name" class="form-control" placeholder="Introduce el nombre" required>
-                </div>
-                <div class="mb-3">
-                    <label for="country" class="form-label">País</label>
-                    <input type="text" id="country" class="form-control" placeholder="Introduce el país" required>
-                </div>
-                <div class="mb-3">
-                    <label for="bioEs" class="form-label">Biografía en Español</label>
-                    <textarea id="bioEs" class="form-control" rows="3" placeholder="Introduce la biografía en español" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="bioEn" class="form-label">Biografía en Inglés</label>
-                    <textarea id="bioEn" class="form-control" rows="3" placeholder="Introduce la biografía en inglés" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="photo" class="form-label">URL de la Foto</label>
-                    <input type="url" id="photo" class="form-control" placeholder="Introduce la URL de la foto" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Agregar Candidato</button>
-            </form>
-        </div>
     </div>
 
     <script>
         // Lista inicial de candidatos
         const predefinedNominees = [
-            // Aquí va la lista de nominados, como la que ya tienes en tu código
+            {
+                id: 1,
+                name: "Misty Copeland",
+                country: "Estados Unidos",
+                bio: {
+                    es: "Primera bailarina del American Ballet Theatre, defensora de la diversidad racial en el ballet clásico.",
+                    en: "Principal dancer at the American Ballet Theatre, advocate for racial diversity in classical ballet."
+                },
+                photo: "https://hbr.org/resources/images/article_assets/2022/05/R2204P_MISTY_COPELAND_VERTICAL.jpg",
+                curriculum: "https://www.mistycopeland.com/about",
+                votes: 0
+            },
+            {
+                id: 2,
+                name: "Lía Rodrigues",
+                country: "Brasil",
+                bio: {
+                    es: "Coreógrafa contemporánea que trabaja con comunidades desfavorecidas en Río de Janeiro, utilizando la danza como herramienta de cambio social.",
+                    en: "Contemporary choreographer working with underprivileged communities in Rio de Janeiro, using dance as a tool for social change."
+                },
+                photo: "https://princeclausfund.nl/uploads/Content%20Awardees%201997%20-%202020/2014,%20Lia%20Rodrigues/Profile/Lia%20Rodrigues_profile.jpeg",
+                curriculum: "https://www.liarodrigues.com/page1/index.php",
+                votes: 0
+            }
         ];
 
         // Función para renderizar los nominados
@@ -82,7 +77,7 @@
             if (nominee) {
                 nominee.votes++;
 
-                // Enviar un correo electrónico
+                // Enviar correo electrónico
                 sendVoteEmail(nominee);
 
                 // Recargar la lista de nominados
@@ -99,39 +94,6 @@
             // Abrir el cliente de correo
             window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }
-
-        // Función para añadir un nuevo candidato
-        function addNominee(event) {
-            event.preventDefault(); // Evitar el comportamiento por defecto del formulario
-
-            const name = document.getElementById('name').value;
-            const country = document.getElementById('country').value;
-            const bioEs = document.getElementById('bioEs').value;
-            const bioEn = document.getElementById('bioEn').value;
-            const photo = document.getElementById('photo').value;
-
-            // Crear un nuevo candidato
-            const newNominee = {
-                id: predefinedNominees.length + 1,
-                name,
-                country,
-                bio: { es: bioEs, en: bioEn },
-                photo,
-                votes: 0
-            };
-
-            // Añadir el nuevo candidato a la lista
-            predefinedNominees.push(newNominee);
-
-            // Recargar la lista de candidatos
-            loadNominees();
-
-            // Resetear el formulario
-            document.getElementById('add-nominee-form').reset();
-        }
-
-        // Event Listener para el formulario
-        document.getElementById('add-nominee-form').addEventListener('submit', addNominee);
 
         // Cargar los nominados al cargar la página
         window.onload = loadNominees;
