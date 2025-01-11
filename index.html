@@ -82,9 +82,6 @@
 function loadNominees(data) {
     const nomineeList = document.getElementById('nominee-list');
     nomineeList.innerHTML = ''; // Limpiar el contenido existente
-    <p>Nominee: ${nominee.name}, Votes: ${nominee.votes}</p>
-    <button onclick="vote('${key}')">Votar</button>
-`;
 
     Object.values(data).forEach((nominee) => {
         const nomineeCard = document.createElement('div');
@@ -130,6 +127,7 @@ function loadNominees(data) {
             console.error("Error al registrar el voto:", error); 
             });
             };
+        <p>Nominee: ${nominee.name}, Votes: ${nominee.votes}</p> <button onclick="vote('${key}')">Votar</button>
         
             // Leer datos desde Firebase
             firebase.database().ref('nominees').on('value', (snapshot) => {
