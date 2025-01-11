@@ -64,10 +64,45 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        
+        import { getDatabase, ref, onValue } from "https://votosmensajediadanza-default-rtdb.firebaseio.com";
+        const db = getDatabase();
+        const nomineesRef = ref(db, 'nominees');
+        onValue(nomineesRef, (snapshot) => {
+        const nominees = snapshot.val();
+        if (nominees) {
+        loadNominees(nominees);
+        } else {
+        console.error("No se encontraron datos en la base de datos.");
+        }
+        });
+
         // Función para cargar nominados desde Firebase
-        function loadNominees() {
-            const nomineeList = document.getElementById('nominee-list');
-            nomineeList.innerHTML = ''; // Limpiar el contenedor
+function loadNominees(data) {
+    const nomineeList = document.getElementById('nominee-list');
+    nomineeList.innerHTML = ''; // Limpiar el contenido existente
+
+    Object.values(data).forEach((nominee) => {
+        const nomineeCard = document.createElement('div');
+        nomineeCard.className = "col-md-4";
+        nomineeCard.innerHTML = `
+            <div class="card shadow-sm">
+                <img src="${nominee.photo}" class="card-img-top" alt="Foto de ${nominee.name}">
+                <div class="card-body">
+                    <h5 class="card-title">${nominee.name}</h5>
+                    <p><strong>País:</strong> ${nominee.country}</p>
+                    <p><strong>Biografía (ES):</strong> ${nominee.bio.es}</p>
+                    <p><strong>Biografía (EN):</strong> ${nominee.bio.en}</p>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-link" onclick="window.open('${nominee.curriculum}', '_blank')">Currículum</button>
+                        <button class="btn btn-success" onclick="vote('${nominee.id}')">Votar (${nominee.votes})</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        nomineeList.appendChild(nomineeCard);
+    });
+}
 
             // Leer datos desde Firebase
             firebase.database().ref('nominees').on('value', (snapshot) => {
