@@ -104,6 +104,29 @@ function loadNominees(data) {
     });
 }
 
+        // Escuchar los datos en tiempo real
+    const nomineesRef = ref(db, 'nominees');
+    onValue(nomineesRef, (snapshot) => {
+        const nominees = snapshot.val();
+        if (nominees) {
+            loadNominees(nominees);
+        } else {
+            console.error("No se encontraron datos en la base de datos.");
+        }
+    });
+
+    // Función para votar por un nominado
+    window.vote = function (id) { // Hacemos la función global para que sea accesible desde el HTML
+        const nomineeRef = ref(db, `nominees/${id}`);
+        update(nomineeRef, {
+            votes: firebase.database.ServerValue.increment(1) // Incrementar el voto
+        }).then(() => {
+            console.log("Voto registrado");
+        }).catch((error) => {
+            console.error("Error al registrar el voto:", error);
+        });
+    };
+        
             // Leer datos desde Firebase
             firebase.database().ref('nominees').on('value', (snapshot) => {
                 const nominees = snapshot.val();
