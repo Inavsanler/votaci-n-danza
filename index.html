@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
 </head>
+    <script type="module" src="firebase-voting.js"></script>
 <body class="bg-light">
     <div class="container py-5">
         <h1 class="text-center mb-4">Nominados al Mensaje del Día Internacional de la Danza</h1>
@@ -81,6 +82,9 @@
 function loadNominees(data) {
     const nomineeList = document.getElementById('nominee-list');
     nomineeList.innerHTML = ''; // Limpiar el contenido existente
+    <p>Nominee: ${nominee.name}, Votes: ${nominee.votes}</p>
+    <button onclick="vote('${key}')">Votar</button>
+`;
 
     Object.values(data).forEach((nominee) => {
         const nomineeCard = document.createElement('div');
@@ -103,8 +107,7 @@ function loadNominees(data) {
         nomineeList.appendChild(nomineeCard);
     });
 }
-
-        // Escuchar los datos en tiempo real
+    // Escuchar los datos en tiempo real
     const nomineesRef = ref(db, 'nominees');
     onValue(nomineesRef, (snapshot) => {
         const nominees = snapshot.val();
@@ -119,13 +122,14 @@ function loadNominees(data) {
     window.vote = function (id) { // Hacemos la función global para que sea accesible desde el HTML
         const nomineeRef = ref(db, `nominees/${id}`);
         update(nomineeRef, {
-            votes: firebase.database.ServerValue.increment(1) // Incrementar el voto
-        }).then(() => {
+            votes: update(nomineeRef, {
+            votes: (nominee.votes || 0) + 1 });) // Incrementar el voto
+            }).then(() => { 
             console.log("Voto registrado");
-        }).catch((error) => {
-            console.error("Error al registrar el voto:", error);
-        });
-    };
+            }).catch((error) => {
+            console.error("Error al registrar el voto:", error); 
+            });
+            };
         
             // Leer datos desde Firebase
             firebase.database().ref('nominees').on('value', (snapshot) => {
