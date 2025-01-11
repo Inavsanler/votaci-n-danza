@@ -365,6 +365,21 @@ const db = firebase.database();
             votes: 0
         },
         ];
+	firebase.database().ref('nominees').on('value', (snapshot) => {
+    const data = snapshot.val();
+    console.log(data); // Aquí tendrás los datos
+});
+firebase.database().ref('nominees').push({
+    name: "Nuevo Candidato",
+    country: "País",
+    bio: {
+        es: "Biografía en español",
+        en: "Biografía en inglés"
+    },
+    photo: "URL de la foto",
+    curriculum: "URL del currículum",
+    votes: 0
+});
 
         // Función para renderizar los nominados
         function loadNominees() {
